@@ -6,13 +6,14 @@ import (
 
 	"time"
 
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	"fileserver/usuario"
 	"fileserver/upfile"
+	"fileserver/usuario"
+	"fmt"
 	"path/filepath"
 	"strings"
-	"fmt"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -46,11 +47,12 @@ func main() {
 	uploaderController := upfile.NewUploaderController(fileService)
 	router.POST("/upload", uploaderController.Upload)
 	router.GET("/files/list", uploaderController.GetFiles)
+	router.GET("/Allfiles/list", uploaderController.GetAllFiles)
 	/*ARQUIVO*/
 
 	const DOWNLOADS_PATH = ""
 
-	router.GET("/download/:filename", func (ctx *gin.Context) {
+	router.GET("/download/:filename", func(ctx *gin.Context) {
 		fileName := ctx.Param("filename")
 		targetPath := filepath.Join(DOWNLOADS_PATH, fileName)
 		//This ckeck is for example, I not sure is it can prevent all possible filename attacks - will be much better if real filename will not come from user side. I not even tryed this code
@@ -62,11 +64,10 @@ func main() {
 		//Seems this headers needed for some browsers (for example without this headers Chrome will download files as txt)
 		ctx.Header("Content-Description", "File Transfer")
 		ctx.Header("Content-Transfer-Encoding", "binary")
-		ctx.Header("Content-Disposition", "attachment; filename="+fileName )
+		ctx.Header("Content-Disposition", "attachment; filename="+fileName)
 		ctx.Header("Content-Type", "application/octet-stream")
 		ctx.File(targetPath)
 	})
-
 
 	port := os.Getenv("SERVER_PORT")
 	router.Run(":" + port)

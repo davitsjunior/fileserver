@@ -1,15 +1,16 @@
 package upfile
 
 import (
+	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
+	"strconv"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"gopkg.in/mgo.v2/bson"
-	"time"
-	"log"
-	"strconv"
-	"fmt"
 )
 
 type UploaderController struct {
@@ -18,7 +19,7 @@ type UploaderController struct {
 
 func NewUploaderController(fileservice *FilesService) *UploaderController {
 	return &UploaderController{
-		FileService:fileservice,
+		FileService: fileservice,
 	}
 }
 
@@ -47,7 +48,7 @@ func (self *UploaderController) Upload(c *gin.Context) {
 	//}
 
 	uuid := bson.NewObjectId()
-	filePath := uuid.Hex()+".pdf"
+	filePath := uuid.Hex() + ".pdf"
 
 	out, err := os.Create(filePath)
 	if err != nil {
@@ -77,18 +78,19 @@ func (self *UploaderController) Upload(c *gin.Context) {
 	}
 	edicao := increment + 1
 	history := File{
-		ID: bson.NewObjectId(),
-		ClientId: clientId,
-		UserId: userId,
-		FileName: header.Filename,
-		CreatedAt: time.Now(),
+		ID:           bson.NewObjectId(),
+		ClientId:     clientId,
+		UserId:       userId,
+		FileName:     header.Filename,
+		CreatedAt:    time.Now(),
 		InternalName: uuid.Hex(),
-		DocYear: "V",
-		Edicao: edicao,
-		DocText: docText,
+		DocYear:      "V",
+		Edicao:       edicao,
+		DocText:      docText,
 	}
 
-	err = self.FileService.Save(&history); if err != nil {
+	err = self.FileService.Save(&history)
+	if err != nil {
 		fmt.Println("04")
 		fmt.Println(err.Error())
 		log.Printf("Upload file error %v\n", err)
@@ -99,7 +101,7 @@ func (self *UploaderController) Upload(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"result": true})
 }
 
-func(self *UploaderController) GetFiles(c *gin.Context) {
+func (self *UploaderController) GetFiles(c *gin.Context) {
 
 	var from, size int
 	var err error
@@ -118,7 +120,19 @@ func(self *UploaderController) GetFiles(c *gin.Context) {
 		return
 	}
 
-	fileResult := FileResult{Files:files, Total:count}
+	fileResult := FileResult{Files: files, Total: count}
+
+	c.JSON(http.StatusOK, fileResult)
+}
+
+func (self *UploaderController) GetAllFiles(c *gin.Context) {
+	files, count, err := self.FileService.GetAllFiles()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
+	}
+
+	fileResult := FileResult{Files: files, Total: count}
 
 	c.JSON(http.StatusOK, fileResult)
 }

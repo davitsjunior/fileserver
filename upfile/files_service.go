@@ -2,11 +2,12 @@ package upfile
 
 import (
 	"errors"
-	"fmt"
 	"fileserver/infra"
+	"fmt"
+	"log"
+
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"log"
 )
 
 type (
@@ -62,6 +63,23 @@ func (self *FilesService) GetFiles(from, size int) (files []File, count int, err
 	find.Sort("-createdAt")
 
 	err = find.All(&files)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return files, count, nil
+}
+
+func (self *FilesService) GetAllFiles() (files []File, count int, err error) {
+	query := bson.M{}
+
+	infra.RefreshSession()
+
+	if count, err = self.Collection.Find(query).Count(); err != nil {
+		return nil, 0, err
+	}
+
+	err = self.Collection.Find(&query).All(&files)
 	if err != nil {
 		return nil, 0, err
 	}
