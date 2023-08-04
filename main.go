@@ -47,7 +47,7 @@ func main() {
 	uploaderController := upfile.NewUploaderController(fileService)
 	router.POST("/upload", uploaderController.Upload)
 	router.GET("/files/list", uploaderController.GetFiles)
-	router.GET("/Allfiles/list", uploaderController.GetAllFiles)
+	router.GET("/allfiles/list", uploaderController.GetAllFiles)
 	/*ARQUIVO*/
 
 	const DOWNLOADS_PATH = ""
@@ -85,5 +85,4 @@ func checkRequired(envVarArgs ...string) {
 		}
 		log.Printf("Environment variable '%s' is ok with value: %s", envVar, os.Getenv(envVar))
 	}
-
 }
