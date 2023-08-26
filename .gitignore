@@ -1,0 +1,28 @@
+# Arquivos temporários gerados pelo VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# Arquivos e diretórios específicos do Go
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+vendor/
+*.log
+
+# Cache e diretórios de dependências do Go
+# Ignorar a pasta data
+data/
+
+# Arquivos que não devem ser incluídos em controle de versão
+*.swp
+.DS_Store
+.idea/
+
+# Build diretórios
+build/
+out/
